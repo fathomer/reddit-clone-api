@@ -4,10 +4,15 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class LikeRedditApplicationTests {
-
+public class LikeRedditApplicationTests {
+    
+    public LikeRedditApplicationTests() {
+     
+    }
+    
 	@Test
-	void contextLoads() {
+	public void contextLoads() {
+	    assert true;
 	}
 
 }
