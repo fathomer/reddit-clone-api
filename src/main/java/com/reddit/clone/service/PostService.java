@@ -1,6 +1,7 @@
 package com.reddit.clone.service;
 
 import java.util.List;
+import com.github.marlonlom.utilities.timeago.TimeAgo;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +15,7 @@ import com.reddit.clone.entity.Subreddit;
 import com.reddit.clone.entity.User;
 import com.reddit.clone.exception.PostNotFoundException;
 import com.reddit.clone.exception.SubredditNotFoundException;
+import com.reddit.clone.repository.CommentRepository;
 import com.reddit.clone.repository.PostRepository;
 import com.reddit.clone.repository.SubredditRepository;
 import com.reddit.clone.repository.UserRepository;
@@ -29,6 +31,7 @@ public class PostService {
     private final SubredditRepository subredditRepository;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public PostResponse getPost(Long id) {
@@ -51,12 +54,16 @@ public class PostService {
     PostResponse mapToDto(Post post) {
         return PostResponse.builder().id(post.getPostId()).postName(post.getPostName())
                 .description(post.getDescription()).url(post.getUrl()).userName(post.getUser().getUsername())
-                .subredditName(post.getSubreddit().getName()).build();
+                .subredditName(post.getSubreddit().getName()).commentCount(commentRepository.findByPost(post).size()).
+                duration(post.getCreatedDate() != null ? TimeAgo.using(post.getCreatedDate().toEpochMilli()) : null).
+                voteCount(post.getVoteCount()).
+                build();
     }
 
     private Post mapToEntity(PostRequest postRequest, Subreddit subreddit, User user) {
         return Post.builder().postName(postRequest.getPostName()).url(postRequest.getUrl())
-                .description(postRequest.getDescription()).user(user).subreddit(subreddit).createdDate(java.time.Instant.now()).build();
+                .description(postRequest.getDescription()).user(user).subreddit(subreddit).createdDate(java.time.Instant.now()).voteCount(0).
+                build();
     }
 
     @Transactional(readOnly = true)
